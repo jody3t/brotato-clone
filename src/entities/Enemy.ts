@@ -44,10 +44,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         g.fillCircle(r, r, r);
     }
 
-    // Eyes
+    // Eyes — scale with radius
+    const eyeSpread = Math.max(3, r * 0.3);
+    const eyeSize = Math.max(1.5, r * 0.12);
     g.fillStyle(0x000000, 1);
-    g.fillCircle(r - 3, r - 2, 1.5);
-    g.fillCircle(r + 3, r - 2, 1.5);
+    g.fillCircle(r - eyeSpread, r - eyeSize, eyeSize);
+    g.fillCircle(r + eyeSpread, r - eyeSize, eyeSize);
 
     g.generateTexture(key, d + 8, d + 8);
     g.destroy();
@@ -69,7 +71,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.enable = true;
-      body.setCircle(def.radius, (this.width - def.radius * 2) / 2, (this.height - def.radius * 2) / 2);
+      // Generous hitbox — 30% larger than visual for forgiving hit detection
+      const hitRadius = Math.round(def.radius * 1.3);
+      const offset = (this.width - hitRadius * 2) / 2;
+      body.setCircle(hitRadius, offset, offset);
     }
 
     this.contactCooldown = 0;

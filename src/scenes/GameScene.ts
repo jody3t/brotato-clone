@@ -280,6 +280,7 @@ export class GameScene extends Phaser.Scene {
    */
   private goToShop(): void {
     this.scene.pause('Game');
+    this.scene.stop('HUD'); // hide HUD during transitions
 
     const startShop = () => {
       this.scene.launch('Shop', {
@@ -289,6 +290,9 @@ export class GameScene extends Phaser.Scene {
         resumeCallback: () => {
           this.waveSystem.nextWave();
           this.waveSystem.startWave();
+          // Restart HUD and game
+          this.scene.launch('HUD');
+          this.hudScene = this.scene.get('HUD') as HUDScene;
           this.scene.resume('Game');
         },
       });

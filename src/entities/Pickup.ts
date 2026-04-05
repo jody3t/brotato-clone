@@ -67,10 +67,13 @@ export class Pickup extends Phaser.Physics.Arcade.Sprite {
       const body = this.body as Phaser.Physics.Arcade.Body;
       if (body) body.setVelocity(0, 0);
 
-      // Lerp directly toward player — fast ramp, no overshoot
-      this.magnetSpeed = Math.min(this.magnetSpeed + 0.08, 0.45);
-      this.x = Phaser.Math.Linear(this.x, targetX, this.magnetSpeed);
-      this.y = Phaser.Math.Linear(this.y, targetY, this.magnetSpeed);
+      // Gentle magnet pull — slow ramp, accelerates as it gets closer
+      this.magnetSpeed = Math.min(this.magnetSpeed + 0.015, 0.18);
+      // Boost as pickup gets close (last 40% of range pulls faster)
+      const closeness = 1 - dist / pickupRadius;
+      const pull = this.magnetSpeed + closeness * 0.08;
+      this.x = Phaser.Math.Linear(this.x, targetX, pull);
+      this.y = Phaser.Math.Linear(this.y, targetY, pull);
     }
 
     return false;
