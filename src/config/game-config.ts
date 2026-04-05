@@ -11,11 +11,17 @@ export const DISPLAY = {
   HEIGHT: 768,
 } as const;
 
+export const CAMERA = {
+  ZOOM: 0.6, // pull back for wider view
+  LERP: 0.08, // follow smoothness
+} as const;
+
 export const PLAYER = {
   BASE_SPEED: 450,
   BASE_HP: 10,
   RADIUS: 16,
-  PICKUP_RADIUS: 80,
+  PICKUP_RADIUS: 120,
+  PICKUP_SNAP: 30, // snap-collect distance
   INVULN_MS: 200, // brief invulnerability after hit
 } as const;
 
@@ -25,7 +31,7 @@ export const WAVE = {
   DURATION_INCREMENT_S: 5,
   MAX_DURATION_S: 60,
   MAX_ENEMIES_ON_SCREEN: 100,
-  SPAWN_MARGIN: 100, // spawn this far outside the camera
+  SPAWN_MARGIN: 200, // spawn this far outside the camera (accounts for zoom)
 } as const;
 
 export const DAMAGE = {

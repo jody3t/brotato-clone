@@ -62,7 +62,8 @@ export class WeaponSystem {
 
   private fire(slot: WeaponSlot, player: Player, target: Enemy): void {
     const { def } = slot;
-    const angle = Phaser.Math.Angle.Between(player.x, player.y, target.x, target.y);
+    // Lead the target: predict where the enemy will be when the projectile arrives
+    const angle = this.leadTarget(player, target, def.projectileSpeed);
 
     // Calculate damage
     let baseDamage = def.baseDamage * player.stats.damage;
@@ -86,6 +87,32 @@ export class WeaponSystem {
     } else {
       this.spawnProjectile(def, player.x, player.y, angle, damage, player.stats.range);
     }
+  }
+
+  /**
+   * Predict where the enemy will be when the projectile arrives.
+   * Solves the interception problem for much better accuracy while moving.
+   */
+  private leadTarget(player: Player, target: Enemy, projectileSpeed: number): number {
+    const dx = target.x - player.x;
+    const dy = target.y - player.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist === 0) return 0;
+
+    // Time for projectile to reach current enemy position
+    const travelTime = dist / projectileSpeed;
+
+    // Enemy velocity (moving toward player)
+    const enemyBody = target.body as Phaser.Physics.Arcade.Body | null;
+    const evx = enemyBody?.velocity.x ?? 0;
+    const evy = enemyBody?.velocity.y ?? 0;
+
+    // Predicted position
+    const predX = target.x + evx * travelTime;
+    const predY = target.y + evy * travelTime;
+
+    return Phaser.Math.Angle.Between(player.x, player.y, predX, predY);
   }
 
   private spawnProjectile(

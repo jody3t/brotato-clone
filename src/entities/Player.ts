@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { PLAYER, ARENA } from '@/config/game-config';
+import { xpForLevel } from '@/config/level-up-data';
 import type { InputState } from '@/systems/GamepadSystem';
 
 export interface PlayerStats {
@@ -144,19 +145,23 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.stats.hp <= 0;
   }
 
+  /** Pending level-ups accumulated during the wave, presented at wave end. */
+  pendingLevelUps = 0;
+
   addXP(amount: number): boolean {
     this.stats.xp += amount;
-    const needed = this.xpForNextLevel();
-    if (this.stats.xp >= needed) {
-      this.stats.xp -= needed;
+    let leveled = false;
+    while (this.stats.xp >= this.xpForNextLevel()) {
+      this.stats.xp -= this.xpForNextLevel();
       this.stats.level++;
-      return true; // leveled up
+      this.pendingLevelUps++;
+      leveled = true;
     }
-    return false;
+    return leveled;
   }
 
   xpForNextLevel(): number {
-    return 5 + (this.stats.level - 1) * 3;
+    return xpForLevel(this.stats.level);
   }
 
   addMaterials(amount: number): void {

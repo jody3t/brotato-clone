@@ -53,26 +53,24 @@ export class Pickup extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  magnetToward(targetX: number, targetY: number, pickupRadius: number): boolean {
+  magnetToward(targetX: number, targetY: number, pickupRadius: number, snapDist: number): boolean {
     const dist = Phaser.Math.Distance.Between(this.x, this.y, targetX, targetY);
 
-    if (dist < 12) {
-      // Close enough — collect
+    if (dist < snapDist) {
+      // Close enough — snap and collect
       this.deactivate();
       return true;
     }
 
     if (dist < pickupRadius) {
-      // Magnet pull — accelerates as it gets closer
-      this.magnetSpeed = Math.min(this.magnetSpeed + 15, 600);
-      const angle = Phaser.Math.Angle.Between(this.x, this.y, targetX, targetY);
+      // Kill physics velocity — we're lerping now
       const body = this.body as Phaser.Physics.Arcade.Body;
-      if (body) {
-        body.setVelocity(
-          Math.cos(angle) * this.magnetSpeed,
-          Math.sin(angle) * this.magnetSpeed,
-        );
-      }
+      if (body) body.setVelocity(0, 0);
+
+      // Lerp directly toward player — fast ramp, no overshoot
+      this.magnetSpeed = Math.min(this.magnetSpeed + 0.08, 0.45);
+      this.x = Phaser.Math.Linear(this.x, targetX, this.magnetSpeed);
+      this.y = Phaser.Math.Linear(this.y, targetY, this.magnetSpeed);
     }
 
     return false;

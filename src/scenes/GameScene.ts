@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { ARENA, PLAYER } from '@/config/game-config';
+import { ARENA, PLAYER, CAMERA } from '@/config/game-config';
 import { WEAPONS } from '@/config/weapon-data';
 import { Player } from '@/entities/Player';
 import { Enemy } from '@/entities/Enemy';
@@ -61,8 +61,9 @@ export class GameScene extends Phaser.Scene {
     // Start with a pistol
     this.weaponSystem.addWeapon(WEAPONS.pistol);
 
-    // Camera
-    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    // Camera — zoom out for wider view
+    this.cameras.main.setZoom(CAMERA.ZOOM);
+    this.cameras.main.startFollow(this.player, true, CAMERA.LERP, CAMERA.LERP);
     this.cameras.main.setBounds(0, 0, ARENA.WIDTH, ARENA.HEIGHT);
 
     // Collisions
@@ -150,7 +151,7 @@ export class GameScene extends Phaser.Scene {
     // Pickups — magnet toward player
     const activePickups = this.pickups.getChildren().filter(p => p.active) as Pickup[];
     for (const pickup of activePickups) {
-      const collected = pickup.magnetToward(this.player.x, this.player.y, PLAYER.PICKUP_RADIUS);
+      const collected = pickup.magnetToward(this.player.x, this.player.y, PLAYER.PICKUP_RADIUS, PLAYER.PICKUP_SNAP);
       if (collected) {
         if (pickup.pickupType === 'material') {
           this.player.addMaterials(pickup.value);
@@ -271,19 +272,41 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Wave end flow (matches Brotato):
+   * 1. Level-up screens (one per level gained) — pick stat upgrades
+   * 2. Shop — buy items + weapons
+   * 3. Next wave
+   */
   private goToShop(): void {
-    // Pass game state to shop
     this.scene.pause('Game');
-    this.scene.launch('Shop', {
-      player: this.player,
-      waveSystem: this.waveSystem,
-      weaponSystem: this.weaponSystem,
-      resumeCallback: () => {
-        this.waveSystem.nextWave();
-        this.waveSystem.startWave();
-        this.scene.resume('Game');
-      },
-    });
+
+    const startShop = () => {
+      this.scene.launch('Shop', {
+        player: this.player,
+        waveSystem: this.waveSystem,
+        weaponSystem: this.weaponSystem,
+        resumeCallback: () => {
+          this.waveSystem.nextWave();
+          this.waveSystem.startWave();
+          this.scene.resume('Game');
+        },
+      });
+    };
+
+    // Level-ups first, then shop
+    if (this.player.pendingLevelUps > 0) {
+      this.scene.launch('LevelUp', {
+        player: this.player,
+        pendingLevels: this.player.pendingLevelUps,
+        onComplete: () => {
+          this.player.pendingLevelUps = 0;
+          startShop();
+        },
+      });
+    } else {
+      startShop();
+    }
   }
 
   private handleGameOver(): void {
