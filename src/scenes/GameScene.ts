@@ -142,10 +142,26 @@ export class GameScene extends Phaser.Scene {
       enemy.updateHPBar();
     }
 
-    // Update projectiles — check range
+    // Update projectiles — check range + subtle homing correction
     const activeProjectiles = this.projectiles.getChildren().filter(p => p.active) as Projectile[];
     for (const proj of activeProjectiles) {
       proj.update();
+      // Find nearest enemy for gentle course correction
+      let nearestDist = 200; // only correct within 200px
+      let nearestX = 0, nearestY = 0;
+      let found = false;
+      for (const enemy of activeEnemies) {
+        const d = Phaser.Math.Distance.Between(proj.x, proj.y, enemy.x, enemy.y);
+        if (d < nearestDist) {
+          nearestDist = d;
+          nearestX = enemy.x;
+          nearestY = enemy.y;
+          found = true;
+        }
+      }
+      if (found) {
+        proj.nudgeToward(nearestX, nearestY, 0.08);
+      }
     }
 
     // Pickups — magnet toward player
@@ -154,12 +170,13 @@ export class GameScene extends Phaser.Scene {
       const collected = pickup.magnetToward(this.player.x, this.player.y, PLAYER.PICKUP_RADIUS, PLAYER.PICKUP_SNAP);
       if (collected) {
         if (pickup.pickupType === 'material') {
+          // In Brotato, materials grant both currency AND XP
           this.player.addMaterials(pickup.value);
+          const leveledUp = this.player.addXP(pickup.value);
+          if (leveledUp) this.showLevelUpFlash();
         } else {
           const leveledUp = this.player.addXP(pickup.value);
-          if (leveledUp) {
-            this.showLevelUpFlash();
-          }
+          if (leveledUp) this.showLevelUpFlash();
         }
       }
     }

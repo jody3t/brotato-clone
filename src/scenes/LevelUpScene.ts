@@ -203,12 +203,11 @@ export class LevelUpScene extends Phaser.Scene {
 
     const input = this.gamepadSystem.poll();
 
-    if (input.moveY < -0.5 || input.justPressed['DPAD_UP']) {
+    // Menu navigation — edge-detected, exactly one move per push
+    if (input.menuY === -1) {
       this.moveSelection(-1);
-      this.inputCooldown = 180;
-    } else if (input.moveY > 0.5 || input.justPressed['DPAD_DOWN']) {
+    } else if (input.menuY === 1) {
       this.moveSelection(1);
-      this.inputCooldown = 180;
     }
 
     if (input.justPressed['A']) {

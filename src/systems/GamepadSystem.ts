@@ -3,6 +3,9 @@ import { GAMEPAD } from '@/config/game-config';
 export interface InputState {
   moveX: number; // -1 to 1
   moveY: number; // -1 to 1
+  /** Menu navigation — fires once per stick push / dpad press. Use in UI. */
+  menuX: -1 | 0 | 1;
+  menuY: -1 | 0 | 1;
   /** True on the frame the button was first pressed */
   justPressed: Record<string, boolean>;
   /** True while the button is held */
@@ -19,6 +22,9 @@ export class GamepadSystem {
   private prevButtons: boolean[] = [];
   private keys: Record<string, Phaser.Input.Keyboard.Key> = {};
   private _connected = false;
+  /** Previous stick zone for edge detection: -1/0/1 */
+  private prevStickX: -1 | 0 | 1 = 0;
+  private prevStickY: -1 | 0 | 1 = 0;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -72,6 +78,8 @@ export class GamepadSystem {
     const state: InputState = {
       moveX: 0,
       moveY: 0,
+      menuX: 0,
+      menuY: 0,
       justPressed: {},
       held: {},
     };
@@ -81,6 +89,24 @@ export class GamepadSystem {
     } else {
       this.pollKeyboard(state);
     }
+
+    // Edge-detect stick zones for menu navigation
+    const MENU_THRESHOLD = 0.5;
+    const zoneX: -1 | 0 | 1 = state.moveX < -MENU_THRESHOLD ? -1 : state.moveX > MENU_THRESHOLD ? 1 : 0;
+    const zoneY: -1 | 0 | 1 = state.moveY < -MENU_THRESHOLD ? -1 : state.moveY > MENU_THRESHOLD ? 1 : 0;
+
+    // Only fire menu movement on the frame the stick enters a new zone
+    if (zoneX !== 0 && zoneX !== this.prevStickX) state.menuX = zoneX;
+    if (zoneY !== 0 && zoneY !== this.prevStickY) state.menuY = zoneY;
+
+    // D-pad justPressed also counts as menu input
+    if (state.justPressed['DPAD_UP']) state.menuY = -1;
+    if (state.justPressed['DPAD_DOWN']) state.menuY = 1;
+    if (state.justPressed['DPAD_LEFT']) state.menuX = -1;
+    if (state.justPressed['DPAD_RIGHT']) state.menuX = 1;
+
+    this.prevStickX = zoneX;
+    this.prevStickY = zoneY;
 
     return state;
   }

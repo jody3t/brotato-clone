@@ -60,6 +60,37 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * Subtle homing — gently nudge velocity toward a target.
+   * Only corrects if the target is within a forward cone.
+   * Invisible to the player but catches edge-case misses.
+   */
+  nudgeToward(targetX: number, targetY: number, strength: number): void {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    if (!body || !this.active) return;
+
+    const currentAngle = Math.atan2(body.velocity.y, body.velocity.x);
+    const targetAngle = Phaser.Math.Angle.Between(this.x, this.y, targetX, targetY);
+
+    // Only nudge if target is within ~40 degree forward cone
+    let diff = targetAngle - currentAngle;
+    // Normalize to [-PI, PI]
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+
+    if (Math.abs(diff) > 0.7) return; // ~40 degrees — outside cone, ignore
+
+    // Apply gentle correction
+    const nudge = diff * strength;
+    const newAngle = currentAngle + nudge;
+    const speed = body.velocity.length();
+
+    body.setVelocity(
+      Math.cos(newAngle) * speed,
+      Math.sin(newAngle) * speed,
+    );
+  }
+
   deactivate(): void {
     this.setActive(false);
     this.setVisible(false);
