@@ -1,14 +1,15 @@
 ---
 title: Brotato Game Data
-status: active
-priority: high
-one_liner: Comprehensive reference data for all Brotato mechanics, items, characters, enemies, and formulas
+status: reference
+priority: low
+one_liner: "Complete reference: 62 characters, 177 items, 76 weapons, all formulas — 1045 lines"
+updated: 2026-04-05
 ---
 
 # Brotato Game Data
 
-Accumulated reference data for building a faithful Brotato clone. Source: Brotato Wiki + community resources.
+Reference data for replicating Brotato mechanics. Compiled from wiki + community sources.
 
 ## Contents
 
-- [game-data.md](game-data.md) — Full game data reference
+- [game-data.md](game-data.md) — Full reference (1045 lines): stats, damage formulas, wave system, 22+ enemy types, 76 weapons, 62 characters, 177 items, XP/leveling, shop mechanics, material drops

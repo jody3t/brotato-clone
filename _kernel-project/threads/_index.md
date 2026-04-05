@@ -6,8 +6,8 @@ Mandatory reading on init. This is the signpost layer for all project threads.
 
 | Thread | Category | Status | One-liner |
 |--------|----------|--------|-----------|
-| [brotato-data](game-design/brotato-data/_index.md) | game-design | active | Comprehensive reference data for all Brotato mechanics, items, characters, enemies, and formulas |
-| [phase-1-feel](development/phase-1-feel/_index.md) | development | active | Core gameplay feel — controller movement, arena, enemies, weapon, wave timer |
+| [phase-1-feel](development/phase-1-feel/_index.md) | development | active | Core loop playable — iterating on projectile accuracy, pickup feel, and menu UX with controller |
+| [brotato-data](game-design/brotato-data/_index.md) | game-design | reference | Complete reference: 62 characters, 177 items, 76 weapons, all formulas — 1045 lines |
 
 ## Categories
 
@@ -21,4 +21,5 @@ Mandatory reading on init. This is the signpost layer for all project threads.
 - **backlog** - Queued, not yet scoped
 - **planning** - Design/exploration phase
 - **active** - Work in progress
+- **reference** - Completed reference material
 - **blocked** - Cannot proceed

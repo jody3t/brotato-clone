@@ -6,4 +6,4 @@ Development phases and progress tracking.
 
 | Thread | Status | One-liner |
 |--------|--------|-----------|
-| [phase-1-feel](phase-1-feel/_index.md) | active | Core gameplay feel — controller, arena, enemies, weapon, waves |
+| [phase-1-feel](phase-1-feel/_index.md) | active | Core loop playable — iterating on projectile accuracy, pickup feel, and menu UX |
