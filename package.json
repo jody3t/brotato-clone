@@ -1,0 +1,22 @@
+{
+  "name": "brotato-clone",
+  "version": "1.0.0",
+  "description": "Brotato-style roguelike arena survivor — web-based with controller support",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "typescript": "^6.0.2",
+    "vite": "^5.4.21"
+  }
+}
